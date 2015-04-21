@@ -6,7 +6,7 @@
 
 class ChangeLightsEvent : public Event {
  public:
-    ChangeLightsEvent(const int &time);
+    ChangeLightsEvent(const int &time, Street* street);
     ~ChangeLightsEvent();
     void makeItHappen();
 };

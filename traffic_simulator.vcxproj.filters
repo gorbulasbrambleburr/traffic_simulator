@@ -18,9 +18,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\CreateVehicleEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,11 +36,14 @@
     <ClCompile Include="src\ChangeLightsEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\AddVehicleEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemoveVehicleEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\CreateVehicleEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="header\Elemento.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,6 +69,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="header\ChangeLightsEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="header\AddVehicleEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="header\RemoveVehicleEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

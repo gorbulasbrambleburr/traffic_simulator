@@ -5,26 +5,31 @@
 #include "global_variables.h"
 #include "ListaEnc.hpp"
 #include "Event.h"
-#include "CreateVehicleEvent.h"
+#include "AddVehicleEvent.h"
 #include "Street.h"
 #include "function_rand.h"
 
 
 #define INPUT_FILENAME "./datafile.in"
 #define OUTPUT_FILENAME "./log.res"
+#define MIN_VEHICLE_LENGTH 2
+#define MAX_VEHICLE_LENGTH 6
 #define N_STREETS 14
 
 
-//using namespace std;
-
-//=====================
 // Gloabal variables
 std::ofstream logfile;     //< Output file to log results.
 int sim_clock;             //< Current simulation time in seconds.
 ListaEnc<Event*> *events;  //< Pointer to future event list.
 
 
-
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
 void open_logfile() {
     logfile.open(OUTPUT_FILENAME);
     if (!logfile.is_open()) {
@@ -32,6 +37,14 @@ void open_logfile() {
     }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
 void close_logfile() {
     if (logfile.is_open()) {
         logfile.close();
@@ -40,17 +53,39 @@ void close_logfile() {
 }
 
 
-void create_initial_events(Street* s[N_STREETS], const int &max_time) {
-    int i;
-//    int counter;
-    int tmp_time;
-    int l_bound, u_bound;
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
+void init_traffic_light_events(Street* s[N_STREETS], const int &max_time) {
+
+	//TODO(mak)	
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
+void init_vehicle_events(Street* s[N_STREETS], const int &max_time) {
+
+	int i;
+    int tmp_time;  // Time of event
+    int l_bound;   // Lower bound
+	int u_bound;   // Upper bound
     Street* tmp_street;
+	Vehicle* tmp_vehicle;
 
     // Iterate through all the source streets
     for (i = 0; i < 6; i++) {
 
-//        counter = 0;
         tmp_time = 0;
         tmp_street = s[i];
 
@@ -62,25 +97,35 @@ void create_initial_events(Street* s[N_STREETS], const int &max_time) {
         while (tmp_time < max_time) {
 
             // Actual time of event
-            tmp_time = tmp_time + function_rand(l_bound, u_bound);
+            tmp_time = tmp_time + function_rand(l_bound, u_bound);            
 
-            // Add event to the future event list
-            events->adicionaEmOrdem(new CreateVehicleEvent(tmp_time, tmp_street));
+			// Create a new random vehicle
+			tmp_vehicle = new Vehicle(
+				function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),
+				function_rand(0,9));
 
-            // Log it.
-            logfile << "\nCreateVehicleEvent: " << tmp_street->getName()
-                    << " at " << tmp_time;
+			if (tmp_vehicle) {
 
-            // Counter just for fun
-//            counter++;
+				// Add event to the future event list
+				events->adicionaEmOrdem(new AddVehicleEvent(tmp_time, tmp_street, tmp_vehicle));
+
+				// Log it.
+				logfile << "\nAddVehicleEvent: " << tmp_street->getName()
+						<< " at " << tmp_time;
+			}
         }
-//        logfile << "\nNew " << counter  << " CreateVehicleEvent created at street " << tmp_street->getName();
     }
-
-    //TODO(mak)
 }
 
 
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
 void link_streets(Street* s[N_STREETS]) {
 
     int i;
@@ -179,28 +224,38 @@ void link_streets(Street* s[N_STREETS]) {
 }
 
 
-
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
 void create_streets(Street* s[N_STREETS]) {
 
+	// THIS WILL BE REMOVED ----------------------------------------------------
+	int crossing_period = 30;
+	// THIS WILL BE REMOVED ----------------------------------------------------
+
     // Sources
-    s[0] = new Street("O1LESTE", 10,  2, 80, 2000, true, false);
-    s[1] = new Street("S1NORTE", 30,  7, 60,  500, true, false);
-    s[2] = new Street("S2NORTE", 60, 15, 40,  500, true, false);
-    s[3] = new Street("L1OESTE", 10,  2, 30,  400, true, false);
-    s[4] = new Street(  "N2SUL", 20,  5, 40,  500, true, false);
-    s[5] = new Street(  "N1SUL", 20,  5, 60,  500, true, false);
+    s[0] = new Street("O1LESTE", 10,  2, 80, 2000, crossing_period, true, false);
+    s[1] = new Street("S1NORTE", 30,  7, 60,  500, crossing_period, true, false);
+    s[2] = new Street("S2NORTE", 60, 15, 40,  500, crossing_period, true, false);
+    s[3] = new Street("L1OESTE", 10,  2, 30,  400, crossing_period, true, false);
+    s[4] = new Street(  "N2SUL", 20,  5, 40,  500, crossing_period, true, false);
+    s[5] = new Street(  "N1SUL", 20,  5, 60,  500, crossing_period, true, false);
 
     // Drains
-    s[6]  = new Street(  "S1SUL", 0, 0, 60,  500, false, true);
-    s[7]  = new Street(  "S2SUL", 0, 0, 40,  500, false, true);
-    s[8]  = new Street("L1LESTE", 0, 0, 30,  400, false, true);
-    s[9]  = new Street("N2NORTE", 0, 0, 40,  500, false, true);
-    s[10] = new Street("N1NORTE", 0, 0, 60,  500, false, true);
-    s[11] = new Street("O1OESTE", 0, 0, 80, 2000, false, true);
+    s[6]  = new Street(  "S1SUL", 0, 0, 60,  500, crossing_period, false, true);
+    s[7]  = new Street(  "S2SUL", 0, 0, 40,  500, crossing_period, false, true);
+    s[8]  = new Street("L1LESTE", 0, 0, 30,  400, crossing_period, false, true);
+    s[9]  = new Street("N2NORTE", 0, 0, 40,  500, crossing_period, false, true);
+    s[10] = new Street("N1NORTE", 0, 0, 60,  500, crossing_period, false, true);
+    s[11] = new Street("O1OESTE", 0, 0, 80, 2000, crossing_period, false, true);
 
     // Neuters
-    s[12] = new Street("C1LESTE", 0, 0, 60,  300, false, false);
-    s[13] = new Street("C1OESTE", 0, 0, 60,  300, false, false);
+    s[12] = new Street("C1LESTE", 0, 0, 60,  300, crossing_period, false, false);
+    s[13] = new Street("C1OESTE", 0, 0, 60,  300, crossing_period, false, false);
 
     logfile << "Streets created.\n";
 }
@@ -243,16 +298,17 @@ int main(int argc, char *argv[])
     // Read the input file and create the streets accordingly
     create_streets(streets);
 
-    // Set all the relations among the streets.
-    // This includes all efferent streets of a given street,
-    // as well as a probability vector to determine the next
-    // street.
+    // Set all the relations among the streets. This includes all efferent
+	// streets of a given street, as well as a probability vector to determine
+	// the next street.
     link_streets(streets);
-    // TODO(mak)
 
     // Create some initial events
-    create_initial_events(streets, max_time);
-    logfile << "\n\nEvent list - empty? " << events->listaVazia() << "\n\n";
+    init_vehicle_events(streets, max_time);
+	init_traffic_light_events(streets, max_time);
+
+
+	logfile << "\n\nEvent list - empty? " << events->listaVazia() << "\n\n";
 
     // --------------------------------------------------------------------------
     // BEGIN SIMULATOR
@@ -272,6 +328,9 @@ int main(int argc, char *argv[])
         // to do by polymorphism.
         cur_event->makeItHappen();
 
+
+		// Deallocate event
+		delete(cur_event);
 
         // Update other statistics-related stuff
         // TODO(mak)

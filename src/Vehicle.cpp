@@ -1,6 +1,6 @@
 #include "Vehicle.h"
 
-Vehicle::Vehicle(int length)
+Vehicle::Vehicle(int length, int route)
     : m_length(length) {}
 
 Vehicle::~Vehicle() {}
@@ -9,10 +9,14 @@ int Vehicle::getLength() {
     return m_length;
 }
 
-void Vehicle::setRoute(const int &route) {
-	m_route = route;
+int Vehicle::getRoute() {
+	return m_route;
 }
-	
+
+int Vehicle::getRemTime() {
+	return m_remTime;
+}
+
 void Vehicle::setRemTime(const int &rem_time) {
 	m_remTime = rem_time;
 }

@@ -3,9 +3,13 @@
 #ifndef GLOBAL_VARIABLES_H
 #define GLOBAL_VARIABLES_H
 
+class Event;
+
 #include <fstream>
+#include "ListaEnc.hpp"
 
 extern std::ofstream logfile;     //< Output file to log results.
 extern int sim_clock;             //< Current simulation time in seconds.
+extern ListaEnc<Event*> *events;  //< Pointer to future event list.
 
 #endif // GLOBAL_VARIABLES_H

@@ -4,10 +4,11 @@
 class Vehicle
 {
  public:
-    Vehicle(int length);
+    Vehicle(int length, int route);
     ~Vehicle();
     int getLength();
-	void setRoute(const int &route);
+	int getRoute();
+	int getRemTime();
 	void setRemTime(const int &rem_time);
 
  private:
