@@ -3,32 +3,37 @@
 Street::Street(std::string name, int period, int period_var, int speed,
                int length, int cross_period, bool source, bool drain)
    : m_name(name), m_period(period), m_periodVar(period_var),
-     m_speed(speed), m_length(length), m_filledSpace(0),
+     m_speed(speed), m_length(length), m_freeSpace(length),
 	 m_crossingPeriod(cross_period), m_source(source), m_drain(drain),
 	 m_greenLight(false)  {
 }
 
 Street::~Street() {}
 
-bool Street::addVehicle(Vehicle* v) {
-    int tmp_space = m_filledSpace;
-    
-	// The actual vehicle size is its nominal size
-	// plus some clearance to other vehicles (3 meters)
-	tmp_space = tmp_space + v->getLength() + 3;
+void Street::addVehicle(Vehicle* vehicle) {
+	// Add the vehicle
+	FilaEnc<Vehicle*>::inclui(vehicle);
 
-    // Check if the vehicles fits into the street
-    if (tmp_space <= m_length) {
-        // Okay, add the vehicle and increment the
-		// total used up space
-		FilaEnc<Vehicle>::inclui(*v);
-		m_filledSpace = tmp_space;
-        return true;
-    } else {
-        // Could not add the vehicle.
-		return false;
-    }
+	// Decrement the available space
+	m_freeSpace = m_freeSpace - vehicle->getLength() - 3;
 }
+
+
+void Street::removeVehicle() {
+	// Remove the vehicle
+	Vehicle* vehicle = FilaEnc::retira();
+
+	// Increment the available space
+	m_freeSpace = m_freeSpace + vehicle->getLength() + 3;
+}
+
+Vehicle* Street::peek() {
+	return FilaEnc::primeiro();
+}
+
+
+
+// Getters & setters
 
 std::string Street::getName() {
     return m_name;
@@ -48,6 +53,10 @@ int Street::getSpeed() {
 
 int Street::getLength() {
     return m_length;
+}
+
+int Street::getFreeSpace() {
+	return m_freeSpace;
 }
 
 int Street::getCrossingPeriod() {
@@ -70,14 +79,13 @@ void Street::switchGreenLight() {
 	m_greenLight ^= true;
 }
 
+Street* Street::getDestinationStreet(int& pos) {
+	return m_effProb[pos];
+}
+
 void Street::setEfferents(Street* eff_prob[10]) {
     int i;
     for (i = 0; i < 10; i++) {
         m_effProb[i] = eff_prob[i];
     }
-}
-
-// Overriden methods
-Vehicle Street::primeiro() {
-	return FilaEnc::primeiro();
 }

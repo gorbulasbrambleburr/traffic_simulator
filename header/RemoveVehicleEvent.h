@@ -9,11 +9,8 @@ class Vehicle;
 class RemoveVehicleEvent : public Event {
 
 public:
-	RemoveVehicleEvent(const int &time, Street* street, Vehicle* vehicle);
+	RemoveVehicleEvent(const int &time, Street* street);
 	~RemoveVehicleEvent();
 	void makeItHappen();
-
-private:
-	Vehicle* m_vehicle;  //< The vehicle to be removed.
 };
 #endif // REMOVEVEHICLEEVENT_H

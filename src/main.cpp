@@ -6,6 +6,7 @@
 #include "ListaEnc.hpp"
 #include "Event.h"
 #include "AddVehicleEvent.h"
+#include "ChangeLightsEvent.h"
 #include "Street.h"
 #include "function_rand.h"
 
@@ -63,7 +64,55 @@ void close_logfile() {
 ///////////////////////////////////////////////////////////////////////////////
 void init_traffic_light_events(Street* s[N_STREETS], const int &max_time) {
 
-	//TODO(mak)	
+	// Time of event
+	int tmp_time = s[0]->getCrossingPeriod();  
+
+	// Create all the fixed events
+	while (tmp_time < max_time) {
+		
+		// O1LESTE & C1LESTE -------------------------------------------
+		// Green light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[0]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[12]));
+		// Log it.
+		logfile << "\nChangeLightsEvent: " << s[0]->getName()
+				<< " at " << tmp_time << "GREEN";
+		// Update time
+		tmp_time = tmp_time + s[0]->getCrossingPeriod();
+		// Red light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[0]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[12]));
+		
+		// N1SUL & N2SUL -----------------------------------------------
+		// Green light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[4]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[5]));
+		// Update time
+		tmp_time = tmp_time + s[4]->getCrossingPeriod();
+		// Red light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[4]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[5]));
+
+		// L1OESTE & C1OESTE -------------------------------------------
+		// Green light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[3]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[13]));
+		// Update time
+		tmp_time = tmp_time + s[3]->getCrossingPeriod();
+		// Red light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[3]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[13]));
+
+		// S1NORTE & S2NORTE -------------------------------------------
+		// Green light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[1]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[2]));
+		// Update time
+		tmp_time = tmp_time + s[1]->getCrossingPeriod();		
+		// Red light
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[1]));
+		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[2]));
+	}
 }
 
 

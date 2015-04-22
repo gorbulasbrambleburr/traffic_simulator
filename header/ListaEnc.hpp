@@ -100,7 +100,7 @@ class ListaEnc {
 	/// lança a exceção ERRO_LISTA_VAZIA.
 	////////////////////////////////////////////////////////////////////////////
 	void eliminaDoInicio() {
-		if (listaVazia) {
+		if (listaVazia()) {
 	        throw ERRO_LISTA_VAZIA;
 	    } else {
 			Elemento<T> *elemento = _head;
