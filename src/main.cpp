@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string.h>
 #include <cstdlib>
+#include <stdlib.h>  // System("pause")
 
 #include "global_variables.h"
 #include "ListaEnc.hpp"
 #include "Event.h"
+#include "EventList.h"
 #include "AddVehicleEvent.h"
 #include "ChangeLightsEvent.h"
 #include "Street.h"
@@ -21,7 +23,7 @@
 // Gloabal variables
 std::ofstream logfile;     //< Output file to log results.
 int sim_clock;             //< Current simulation time in seconds.
-ListaEnc<Event*> *events;  //< Pointer to future event list.
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,56 +64,55 @@ void close_logfile() {
 /// \return
 /// \sa
 ///////////////////////////////////////////////////////////////////////////////
-void init_traffic_light_events(Street* s[N_STREETS], const int &max_time) {
-
+void init_traffic_light_events(
+	Street* s[N_STREETS], const int &max_time, EventList* events)
+{
 	// Time of event
-	int tmp_time = s[0]->getCrossingPeriod();  
+	int tmp_time = s[0]->getCrossingPeriod();
 
 	// Create all the fixed events
 	while (tmp_time < max_time) {
 		
 		// O1LESTE & C1LESTE -------------------------------------------
 		// Green light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[0]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[12]));
-		// Log it.
-		logfile << "\nChangeLightsEvent: " << s[0]->getName()
-				<< " at " << tmp_time << "GREEN";
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[0], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[12], events));
 		// Update time
 		tmp_time = tmp_time + s[0]->getCrossingPeriod();
 		// Red light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[0]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[12]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[0], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[12], events));
+
 		
 		// N1SUL & N2SUL -----------------------------------------------
 		// Green light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[4]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[5]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[4], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[5], events));
 		// Update time
 		tmp_time = tmp_time + s[4]->getCrossingPeriod();
 		// Red light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[4]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[5]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[4], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[5], events));
 
 		// L1OESTE & C1OESTE -------------------------------------------
 		// Green light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[3]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[13]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[3], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[13], events));
 		// Update time
 		tmp_time = tmp_time + s[3]->getCrossingPeriod();
 		// Red light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[3]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[13]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[3], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[13], events));
 
 		// S1NORTE & S2NORTE -------------------------------------------
 		// Green light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[1]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[2]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[1], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[2], events));
 		// Update time
 		tmp_time = tmp_time + s[1]->getCrossingPeriod();		
 		// Red light
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[1]));
-		events->adicionaEmOrdem(new ChangeLightsEvent(tmp_time, s[2]));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[1], events));
+		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[2], events));
 	}
 }
 
@@ -123,8 +124,8 @@ void init_traffic_light_events(Street* s[N_STREETS], const int &max_time) {
 /// \return
 /// \sa
 ///////////////////////////////////////////////////////////////////////////////
-void init_vehicle_events(Street* s[N_STREETS], const int &max_time) {
-
+void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* events)
+{
 	int i;
     int tmp_time;  // Time of event
     int l_bound;   // Lower bound
@@ -156,7 +157,7 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time) {
 			if (tmp_vehicle) {
 
 				// Add event to the future event list
-				events->adicionaEmOrdem(new AddVehicleEvent(tmp_time, tmp_street, tmp_vehicle));
+				events->sorted_insert(new AddVehicleEvent(tmp_time, tmp_street, events, tmp_vehicle));
 
 				// Log it.
 				logfile << "\nAddVehicleEvent: " << tmp_street->getName()
@@ -310,26 +311,52 @@ void create_streets(Street* s[N_STREETS]) {
 }
 
 
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///
+/// \param
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
+void get_simulation_parameters(int& max_time, int& stoplight_period)
+{
+	std::cout << "\nEnter the total amount of time in hours to simulate the events: ";
+	std::cin >> max_time;
+	max_time = max_time * 3600;  // Hours -> seconds.
+
+	std::cout << "\nEnter the stoplight period in seconds: ";
+	std::cin >> stoplight_period;
+}
+
+
+
+
+
 // ==============================================================================
 // ==== MAIN
 // ==============================================================================
-int main(int argc, char *argv[])
+int main()
 {
-    // Variables
-    int max_time;      //< Maximum simulation time in seconds.
-    int n_events;      //< Number of events.
-    Event *cur_event;  //< Current event being processed.
+    
+	// Simulation parameters
+	int max_time;                //< Maximum simulation time in seconds.
+	int stoplight_period;        //< Amount of time the stoplight is green.
 
-    Street* streets[N_STREETS];    //< Array of Street pointers (constant size).
-//    ListaEnc<Crossing> crossings;
+    // Events-related variables
+    Event *cur_event;            //< Current event being processed.
+	EventList *events;           //< Pointer to future event list.
 
-    // Get simulation time in hours from input parameters
-    if (argc != 2) {
-        std::cout << "Wrong number of input variables!\n";
-        std::cout << "Please enter total simulation time in hours.\n\n";
-        return 1;
-    }
-    max_time = 3600 * atoi(argv[1]);  // Hours -> seconds conversion.
+    Street* streets[N_STREETS];  //< Array of Street pointers (constant size).
+
+	// Statistical variables
+	int n_events;                //< Number of events.
+	int n_inVehicles;            //< Number of vehicles that entered the system.
+	int n_outVehicles;           //< Numeber of vehicles that left the system.
+
+    
+	
+
 
 
 
@@ -337,9 +364,14 @@ int main(int argc, char *argv[])
     // STATE VARIABLES INITIALIZATION
     // --------------------------------------------------------------------------
 
-    sim_clock = 0;
+    sim_clock = 0;  // Global.
     n_events = 0;
-    events = new ListaEnc<Event*>();
+	
+	// Get simulation time and stoplight period from the console
+	get_simulation_parameters(max_time, stoplight_period);
+	
+	// Create the Future Event List
+    events = new EventList();
 
     // Open output file
     open_logfile();
@@ -348,47 +380,41 @@ int main(int argc, char *argv[])
     create_streets(streets);
 
     // Set all the relations among the streets. This includes all efferent
-	// streets of a given street, as well as a probability vector to determine
+	// streets of a given street, i.e., a probability vector to determine
 	// the next street.
     link_streets(streets);
 
     // Create some initial events
-    init_vehicle_events(streets, max_time);
-	init_traffic_light_events(streets, max_time);
+    init_vehicle_events(streets, max_time, events);
+	init_traffic_light_events(streets, max_time, events);
 
 
-	logfile << "\n\nEvent list - empty? " << events->listaVazia() << "\n\n";
+	logfile << "\n\nEvent list - empty? " << events->is_empty() << "\n\n";
 
     // --------------------------------------------------------------------------
     // BEGIN SIMULATOR
     // --------------------------------------------------------------------------
-    while (!events->listaVazia() && sim_clock < max_time) {
+    while (!events->is_empty() && sim_clock < max_time) {
 
         // Get next event in time
-        cur_event = events->retiraDoInicio();
+        cur_event = events->pop_front();
 
         // Update the simulation clock
         sim_clock = cur_event->getTime();
+		
+		logfile << "\nEvent time: " << sim_clock;
 
-        logfile << "\nEvent time: " << sim_clock;
-
-        // Perform event
-        // Each event will do what it's supposed
-        // to do by polymorphism.
+        // Each event will do what it's supposed to do by polymorphism.
         cur_event->makeItHappen();
-
 
 		// Deallocate event
 		delete(cur_event);
-
-        // Update other statistics-related stuff
-        // TODO(mak)
 
         // Update number of events
         n_events++;
 
     }
-    logfile << "\n\nEvent list - empty? " << events->listaVazia() << "\n\n";
+    logfile << "\n\nEvent list - empty? " << events->is_empty() << "\n\n";
 
     // --------------------------------------------------------------------------
     // STATISTICAL REPORT
@@ -396,8 +422,11 @@ int main(int argc, char *argv[])
 
 
 
-
-
+	// Deallocate the list of events
+	delete events;
+	
+	// Close the output file
     close_logfile();
+
     return 0;
 }

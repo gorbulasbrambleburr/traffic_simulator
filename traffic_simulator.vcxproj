@@ -84,6 +84,7 @@
     <ClCompile Include="src\ChangeLightsEvent.cpp" />
     <ClCompile Include="src\AddVehicleEvent.cpp" />
     <ClCompile Include="src\Event.cpp" />
+    <ClCompile Include="src\EventList.cpp" />
     <ClCompile Include="src\function_rand.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RemoveVehicleEvent.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="header\AddVehicleEvent.h" />
     <ClInclude Include="header\Elemento.hpp" />
     <ClInclude Include="header\Event.h" />
+    <ClInclude Include="header\EventList.h" />
     <ClInclude Include="header\FilaEnc.hpp" />
     <ClInclude Include="header\function_rand.h" />
     <ClInclude Include="header\global_variables.h" />

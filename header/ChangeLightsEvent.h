@@ -1,12 +1,15 @@
 #ifndef CHANGELIGHTSEVENT_H
 #define CHANGELIGHTSEVENT_H
 
-#include "global_variables.h"
+class Street;
+class Vehicle;
+class EventList;
+
 #include "Event.h"
 
 class ChangeLightsEvent : public Event {
- public:
-    ChangeLightsEvent(const int &time, Street* street);
+public:
+	ChangeLightsEvent(const int &time, Street* street, EventList* events);
     ~ChangeLightsEvent();
     void makeItHappen();
 };

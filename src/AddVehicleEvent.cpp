@@ -5,8 +5,8 @@
 #include "Street.h"
 
 
-AddVehicleEvent::AddVehicleEvent(const int &time, Street *street, Vehicle* vehicle)
-    : Event(time, street), m_vehicle(vehicle) {
+AddVehicleEvent::AddVehicleEvent(const int &time, Street *street, EventList* events, Vehicle* vehicle)
+    : Event(time, street, events), m_vehicle(vehicle) {
 }
 
 AddVehicleEvent::~AddVehicleEvent() {

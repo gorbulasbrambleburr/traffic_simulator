@@ -47,7 +47,7 @@ class ListaEnc {
 	/// Construtor da classe ListaEnc.
 	/// Ao ser criada, possui tamanho 0 e aponta para lugar nenhum.
 	////////////////////////////////////////////////////////////////////////////
-	ListaEnc<T>() : _head(NULL) , _size(0) {}
+	ListaEnc<T>() : _head(nullptr) , _size(0) {}
 
 
 
@@ -401,13 +401,13 @@ class ListaEnc {
 	void destroiLista() {
 	    Elemento<T> *anterior, *atual = _head;
 
-	    while (atual != NULL) {
+	    while (atual != nullptr) {
 	        anterior = atual;
 	        atual = atual->getProximo();
 	        delete anterior;
 	    }
 	    _size = 0;
-	    _head = NULL;
+	    _head = nullptr;
 	}
 
  protected:

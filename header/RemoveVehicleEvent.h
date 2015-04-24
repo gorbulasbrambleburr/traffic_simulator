@@ -3,13 +3,14 @@
 
 class Street;
 class Vehicle;
+class EventList;
 
 #include "Event.h"
 
 class RemoveVehicleEvent : public Event {
 
 public:
-	RemoveVehicleEvent(const int &time, Street* street);
+	RemoveVehicleEvent(const int &time, Street* street, EventList* events);
 	~RemoveVehicleEvent();
 	void makeItHappen();
 };

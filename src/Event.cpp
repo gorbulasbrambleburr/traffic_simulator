@@ -1,12 +1,14 @@
+#include <iostream>
 #include "Event.h"
+#include "ListaEnc.hpp"
 
-Event::Event(const int &time)
-	: m_time(time) {
-}
-
-Event::Event(const int &time, Street* street)
-    : m_time(time), m_street(street) {
+Event::Event(const int &time, Street* street, EventList* events)
+    : m_time(time), m_street(street), m_events(events) {
 }
 
 Event::~Event() {
+}
+
+int Event::getTime() {
+    return m_time;
 }

@@ -1,11 +1,12 @@
 #include <cmath>
 #include "global_variables.h"
+#include "EventList.h"
 #include "RemoveVehicleEvent.h"
 #include "AddVehicleEvent.h"
 #include "Street.h"
 
-RemoveVehicleEvent::RemoveVehicleEvent(const int &time, Street *street)
-    : Event(time, street) {
+RemoveVehicleEvent::RemoveVehicleEvent(const int &time, Street *street, EventList* events)
+    : Event(time, street, events) {
 }
 
 RemoveVehicleEvent::~RemoveVehicleEvent() {
@@ -60,12 +61,12 @@ void RemoveVehicleEvent::makeItHappen() {
 			int tmp_time = (int) ceil((vehicle->getLength() + 3) / speed_mps);
 
 			// Create an event to remove the next vehicle on this street
-			events->adicionaEmOrdem(new RemoveVehicleEvent(tmp_time, m_street));
+			m_events->sorted_insert(new RemoveVehicleEvent(tmp_time, m_street, m_events));
 
 			// Create an event to add the vehicle to destination street
 			// We're not taking into account the time it takes for the vehicle
 			// to cross the intersection. Teleportation ftw, folks!
-			events->adicionaEmOrdem(new AddVehicleEvent(tmp_time, dest_street, vehicle));
+			m_events->sorted_insert(new AddVehicleEvent(tmp_time, dest_street, m_events, vehicle));
 		}
 	}
 }
