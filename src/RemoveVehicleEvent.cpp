@@ -15,13 +15,13 @@ RemoveVehicleEvent::~RemoveVehicleEvent() {
 void RemoveVehicleEvent::makeItHappen() {
 
 	// If the street is not empty, then remove the first vehicle
-	if (!m_street->isEmpty()) {
-
+	if (!m_street->isEmpty())
+	{
 		// Get pointer to first vehicle
 		Vehicle* vehicle = m_street->peek();
 	
-		if (m_street->isDrain()) {
-
+		if (m_street->isDrain())
+		{
 			// Drain street removal
 			m_street->removeVehicle();
 
@@ -31,16 +31,17 @@ void RemoveVehicleEvent::makeItHappen() {
 			// Log it
 			logfile << "\nVehicle n. " << vehicle->getID()
 				    << " permanently removed from " << m_street->getName();
-
-		} else {
+		}
+		else  // not a drain street
+		{
 
 			// Test for greenlight. Only useful for vehicles other than the first.
-			if (m_street->isGreenLight()) {
-				
+			if (m_street->isGreenLight())
+			{				
 				// Test for time of arrival at the stoplight.
 				// Only useful for the first vehicle
-				if (vehicle->getRemTime() <= sim_clock) {
-
+				if (vehicle->getRemTime() <= sim_clock)
+				{
 					// Get destination street
 					int route = vehicle->getRoute();
 					Street* dest_street = m_street->getDestinationStreet(route);
@@ -48,7 +49,8 @@ void RemoveVehicleEvent::makeItHappen() {
 					// Get available space in the destination street
 					int free_space = dest_street->getFreeSpace();
 
-					if (vehicle->getLength() + 3 <= free_space) {
+					if (vehicle->getLength() + 3 <= free_space)
+					{
 						// Remove vehicle from this street
 						m_street->removeVehicle();
 			
@@ -66,14 +68,17 @@ void RemoveVehicleEvent::makeItHappen() {
 
 						// If this street isn't empty after the removal, then schedule
 						// a new removal event.
-						if (!m_street->isEmpty()) {
-						
+						if (!m_street->isEmpty())
+						{						
 							// Check the next vehicle "distance" from the recently removed one
-							if (m_street->peek()->getRemTime() <= tmp_time) {
+							if (m_street->peek()->getRemTime() <= tmp_time)
+							{
 								// Next vehicle was right behind the one that left
 								m_events->sorted_insert(	new RemoveVehicleEvent(
 									tmp_time, m_street, m_events));
-							} else {
+							}
+							else
+							{
 								// Either next vehicle is at some distance from the one that left							
 								m_events->sorted_insert(	new RemoveVehicleEvent(
 										m_street->peek()->getRemTime(), m_street, m_events));
@@ -87,12 +92,26 @@ void RemoveVehicleEvent::makeItHappen() {
 						// will be created at the time of insertion (at AddVehicleEvent#makeItHappen).
 						m_events->sorted_insert(new AddVehicleEvent(tmp_time, dest_street, m_events, vehicle));
 					}
-				} else {
-					// First vehicle wasn't under the stoplight yet and couldn't be removed
+				}
+				else  // 
+				{					
 					m_events->sorted_insert(	new RemoveVehicleEvent(
 							m_street->peek()->getRemTime(), m_street, m_events));
+					logfile << "\nFirst vehicle wasn't yet under the stoplight at "
+						    << m_street->getName() << " and couldn't be removed.";
 				}
-			}  // greenlight
+			}
+			else  // not Greenlight
+			{
+				logfile << "\nStoplight at " << m_street->getName()
+			            << " is red. No vehicles were removed.";
+			}
 		}
 	}
+	else  // empty street
+	{
+		logfile << "\n" << m_street->getName()
+			    << " is empty. No vehicles were removed.";
+	}
+
 }

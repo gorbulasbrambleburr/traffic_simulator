@@ -32,7 +32,8 @@ void AddVehicleEvent::makeItHappen() {
 		int travel_distance = m_street->getLength() - m_vehicle->getLength() - 3;
 
 		// Expected removal time for this vehicle
-		const int rem_time = sim_clock +  travel_distance / m_street->getSpeed();
+		double speed_mps = m_street->getSpeed() / 3.6;
+		const int rem_time = sim_clock +  (int) ceil(travel_distance / speed_mps);
 		m_vehicle->setRemTime(rem_time);
 		
 		// Check if it's a drain street

@@ -21,7 +21,8 @@ void Street::addVehicle(Vehicle* vehicle) {
 	m_freeSpace = m_freeSpace - vehicle->getLength() - 3;
 
 	// Log vehicle insertion
-	logfile << "\nVehicle n. " << vehicle->getID() << " added to street: " << m_name;
+	logfile << "\nVehicle n. " << vehicle->getID() << " (" << vehicle->getLength()
+		    << "m) added to street: " << m_name;
 	logfile << "\nCurrent number of vehicles in this street : " << m_nvehicles;
 }
 

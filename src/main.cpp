@@ -13,7 +13,7 @@
 #include "function_rand.h"
 
 
-#define OUTPUT_FILENAME "./log.res"
+#define OUTPUT_FILENAME "./results.log"
 #define MIN_VEHICLE_LENGTH 2
 #define MAX_VEHICLE_LENGTH 6
 #define N_STREETS 14
@@ -241,7 +241,7 @@ void link_streets(Street* s[N_STREETS]) {
     for (i = 0; i < 8; i++) {
         eff[i] = s[12];        // C1LESTE (80%)
     }
-    eff[8] = s[0];             // O1OESTE (10%)
+    eff[8] = s[11];            // O1OESTE (10%)
     eff[9] = s[6];             // S1SUL (10%)
     s[5]->setEfferents(eff);
 
