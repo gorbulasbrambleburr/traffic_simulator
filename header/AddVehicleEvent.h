@@ -14,6 +14,6 @@ public:
     void makeItHappen();
 
 private:
-	Vehicle* m_vehicle;  //< The vehicle to be added.
+	Vehicle* m_vehicle;      //< The vehicle to be added.
 };
 #endif // CREATEVEHICLEEVENT_H

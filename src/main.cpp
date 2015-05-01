@@ -13,7 +13,6 @@
 #include "function_rand.h"
 
 
-#define INPUT_FILENAME "./datafile.in"
 #define OUTPUT_FILENAME "./log.res"
 #define MIN_VEHICLE_LENGTH 2
 #define MAX_VEHICLE_LENGTH 6
@@ -51,7 +50,6 @@ void open_logfile() {
 void close_logfile() {
     if (logfile.is_open()) {
         logfile.close();
-        std::cout << "Output file closed.";
     }
 }
 
@@ -151,8 +149,9 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 
 			// Create a new random vehicle
 			tmp_vehicle = new Vehicle(
-				function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),
-				function_rand(0,9));
+				function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),  // length
+				function_rand(0,9),  // route
+				-1);                 // vehicle id
 
 			if (tmp_vehicle) {
 
@@ -388,33 +387,40 @@ int main()
     init_vehicle_events(streets, max_time, events);
 	init_traffic_light_events(streets, max_time, events);
 
-
-	logfile << "\n\nEvent list - empty? " << events->is_empty() << "\n\n";
+	
 
     // --------------------------------------------------------------------------
     // BEGIN SIMULATOR
     // --------------------------------------------------------------------------
-    while (!events->is_empty() && sim_clock < max_time) {
+    
+	logfile << "\n\nStarting simulation...\n";
+	std::cout << "\n\nStarting simulation...";
+	
+	while (!events->is_empty() && sim_clock < max_time) {
 
-        // Get next event in time
+		// Update number of events
+        n_events++;
+		
+		// Get next event in time
         cur_event = events->pop_front();
 
         // Update the simulation clock
         sim_clock = cur_event->getTime();
 		
+		logfile << "\n\n-------------------------------------------------";
+		logfile << "\nEvent " << n_events << " of " << events->getSize();
 		logfile << "\nEvent time: " << sim_clock;
+		//logfile << "\nList size...: " << events->getSize();		
+		//std::cout << "\nEvent number: " << n_events;
+		//std::cout << "\nEvent time..: " << sim_clock;
+		//std::cout << "\nList size: " << events->getSize();
 
         // Each event will do what it's supposed to do by polymorphism.
         cur_event->makeItHappen();
 
 		// Deallocate event
 		delete(cur_event);
-
-        // Update number of events
-        n_events++;
-
     }
-    logfile << "\n\nEvent list - empty? " << events->is_empty() << "\n\n";
 
     // --------------------------------------------------------------------------
     // STATISTICAL REPORT
@@ -428,5 +434,8 @@ int main()
 	// Close the output file
     close_logfile();
 
+	std::cout << " simulation finished.";
+	std::cout << "\n\nCheck output file ('"<< OUTPUT_FILENAME <<"') for logging information.\n";
+	system("pause");
     return 0;
 }

@@ -48,7 +48,7 @@ class FilaEnc : private ListaEnc<T> {
 	////////////////////////////////////////////////////////////////////////////
 	FilaEnc<T>() :
 		ListaEnc<T>(),      // Construtor da classe base
-			_tail(NULL) {}  // Atributo desta classe
+		_tail(NULL) {}      // Atributo desta classe
 
 
 
@@ -148,7 +148,7 @@ class FilaEnc : private ListaEnc<T> {
 	/// \return bool - true se estiver vazia.
 	////////////////////////////////////////////////////////////////////////////
 	bool filaVazia() const {
-		return FilaEnc<T>::listaVazia();
+		return ListaEnc<T>::listaVazia();
 	}
 
 
@@ -159,7 +159,7 @@ class FilaEnc : private ListaEnc<T> {
 	/// to desta.
 	////////////////////////////////////////////////////////////////////////////
 	void limparFila() {
-		FilaEnc<T>::destroiLista();
+		ListaEnc<T>::destroiLista();
 		_tail = NULL;
 	}
 

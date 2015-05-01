@@ -1,3 +1,4 @@
+#include <iostream>
 #include "global_variables.h"
 #include "EventList.h"
 #include "ChangeLightsEvent.h"
@@ -6,6 +7,9 @@
 
 ChangeLightsEvent::ChangeLightsEvent(const int &time, Street* street, EventList* events)
 	: Event(time, street, events) {
+	// Log it.
+	logfile << "\nChangeLightsEvent created: " << m_street->getName()
+			<< " at " << m_time;
 }
 
 ChangeLightsEvent::~ChangeLightsEvent() {
@@ -19,20 +23,15 @@ void ChangeLightsEvent::makeItHappen() {
 
 	if (m_street->isGreenLight())
 	{
-		logfile << "\nGreen light on the street " << m_street
-			    << "at time " << m_time;
+		logfile << "\nGreen light on " << m_street->getName();
 
-		// Perhaps the first vehicle on the street couldn't be removed at its
-		// removal time, so we have to reschedule its removal. Thus, we create
-		// a RemoveVehicleEvent set on the current clock time. It'll be the
-		// first event in the future event list.
+		// Schedule a new removal at this exact time
 		m_events->sorted_insert(new RemoveVehicleEvent(m_time, m_street, m_events));
 
 		logfile << "\nVehicle at traffic light scheduled to be removed.";
 	}
 	else
 	{
-		logfile << "\nRed light on the street " << m_street
-			    << "at time " << m_time;
+		logfile << "\nRed light on " << m_street;
 	}
 }

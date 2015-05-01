@@ -1,5 +1,6 @@
 #include "EventList.h"
 #include "Event.h"
+#include "global_variables.h"
 
 
 EventList::EventList() : ListaEnc<Event*>() {
@@ -38,7 +39,7 @@ void EventList::sorted_insert(Event* new_event) {
 		// While the next node is not null and its event time is less than
 		// the new event time
 		while (current->getProximo() != nullptr &&
-			   current->getInfo()->getTime() < new_event->getTime())
+			   current->getProximo()->getInfo()->getTime() < new_event->getTime())
 		{
 			current = current->getProximo();
 		}
@@ -46,6 +47,7 @@ void EventList::sorted_insert(Event* new_event) {
 		new_node->setProximo(current->getProximo());
 		current->setProximo(new_node);
 	}
+	_size++;
 }
 
 
@@ -74,4 +76,8 @@ bool EventList::is_empty() {
 ///////////////////////////////////////////////////////////////////////////////
 Event* EventList::pop_front() {
 	return ListaEnc<Event*>::retiraDoInicio();
+}
+
+int EventList::getSize() const {
+	return _size;
 }

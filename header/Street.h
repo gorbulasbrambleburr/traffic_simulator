@@ -35,6 +35,7 @@ class Street : private FilaEnc<Vehicle*>
 	void switchGreenLight();
 	Street* getDestinationStreet(int& pos);
     void setEfferents(Street* eff_prob[10]);
+	bool isEmpty();
 
 
  private:
@@ -49,5 +50,6 @@ class Street : private FilaEnc<Vehicle*>
     bool m_drain;            //< Is it a drain for vehicles?
 	bool m_greenLight;       //< Is the traffic light green?
 	Street* m_effProb[10];   //< List of pointers to efferents based on probability.
+	int m_nvehicles;         //< Number of vehicles in this street.
 };
 #endif // STREET_H
