@@ -53,7 +53,52 @@ void close_logfile() {
     }
 }
 
+void generate_report(Street* s[N_STREETS])
+{
+	int i;	
+	int sum_inflow = 0;
+	int sum_outflow = 0;
+	
+	std::cout << "\n\n";
+	logfile << "\n\n";
+	//std::cout << "Street   Inflow    Outflow    Current\n";
+	std::cout << "Street" << "\t\t"
+	          << "In" << "\t"
+	          << "Out" << "\t"
+	          << "Trapped";
+	std::cout << "\n--------------------------------------\n";
+	logfile << "Street" << "\t\t"
+	        << "In" << "\t"
+	        << "Out" << "\t"
+	        << "Trapped";
+	logfile << "\n--------------------------------------\n";
+	for (i = 0; i < N_STREETS; i++)
+	{
+		std::cout << s[i]->getName() << "\t\t"
+			      << s[i]->getInflow() << "\t"
+				  << s[i]->getOutflow() << "\t"
+				  << s[i]->getInflow() -
+				     s[i]->getOutflow()
+				  << "\n";
+		logfile << s[i]->getName() << "\t\t"
+			    << s[i]->getInflow() << "\t"
+				<< s[i]->getOutflow() << "\t"
+				<< s[i]->getInflow() -
+				   s[i]->getOutflow()
+				<< "\n";
 
+		sum_inflow = sum_inflow + s[i]->getInflow();
+		sum_outflow = sum_outflow + s[i]->getOutflow();
+	}
+	std::cout << "\n\n";
+	std::cout << "\nNumber of vehicles that entered the system: " << sum_inflow;
+	std::cout << "\nNumber of vehicles that left the system...: " << sum_outflow;
+	std::cout << "\nNumber of vehicles trapped in the system..: " << sum_inflow - sum_outflow;
+	logfile << "\n\n";
+	logfile << "\nNumber of vehicles that entered the system: " << sum_inflow;
+	logfile << "\nNumber of vehicles that left the system...: " << sum_outflow;
+	logfile << "\nNumber of vehicles trapped in the system..: " << sum_inflow - sum_outflow;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///
@@ -267,7 +312,7 @@ void link_streets(Street* s[N_STREETS]) {
         eff[i] = s[10];        // N1NORTE (30%)
     }
     for (i = 6; i < 10; i++) {
-        eff[i] = s[11];        // O1OESTE (40%)
+        eff[i] = s[11];        // O1OESTE (40%) 
     }
     s[13]->setEfferents(eff);
 }
@@ -422,11 +467,14 @@ int main()
 		delete(cur_event);
     }
 
-    // --------------------------------------------------------------------------
+    std::cout << " simulation finished.";
+
+	// --------------------------------------------------------------------------
     // STATISTICAL REPORT
     // --------------------------------------------------------------------------
 
-
+	generate_report(streets);
+	
 
 	// Deallocate the list of events
 	delete events;
@@ -434,7 +482,7 @@ int main()
 	// Close the output file
     close_logfile();
 
-	std::cout << " simulation finished.";
+	
 	std::cout << "\n\nCheck output file ('"<< OUTPUT_FILENAME <<"') for logging information.\n";
 	system("pause");
     return 0;

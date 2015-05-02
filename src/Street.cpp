@@ -6,39 +6,53 @@ Street::Street(std::string name, int period, int period_var, int speed,
    : m_name(name), m_period(period), m_periodVar(period_var),
      m_speed(speed), m_length(length), m_freeSpace(length),
 	 m_crossingPeriod(cross_period), m_source(source), m_drain(drain),
-	 m_greenLight(false), m_nvehicles(0) {
+	 m_greenLight(false), m_inflow(0), m_outflow(0)
+{
 }
 
 Street::~Street() {}
 
 void Street::addVehicle(Vehicle* vehicle) {
 	
+	int n_vehicles;
+	
 	// Add the vehicle
-	FilaEnc<Vehicle*>::inclui(vehicle);
-	m_nvehicles++;
+	FilaEnc<Vehicle*>::inclui(vehicle);	
+
+	// Update total number of vehicles that entered this street
+	m_inflow++;
+
+	// Update current number of vehicles in this street
+	n_vehicles = m_inflow - m_outflow;
 	
 	// Decrement the available space
 	m_freeSpace = m_freeSpace - vehicle->getLength() - 3;
 
 	// Log vehicle insertion
 	logfile << "\nVehicle n. " << vehicle->getID() << " (" << vehicle->getLength()
-		    << "m) added to street: " << m_name;
-	logfile << "\nCurrent number of vehicles in this street : " << m_nvehicles;
+		    << "m) added to " << m_name << " (" << n_vehicles << ").";
 }
 
 
 void Street::removeVehicle() {
 	
+	int n_vehicles;
+	
 	// Remove the vehicle
 	Vehicle* vehicle = FilaEnc::retira();
-	m_nvehicles--;
 	
-	// Log vehicle removal
-    logfile << "\nVehicle n. " << vehicle->getID() << " removed from street: " << m_name;
-	logfile << "\nCurrent number of vehicles in this street: " << m_nvehicles;
+	// Update total number of vehicles that left this street
+	m_outflow++;
+
+	// Update current number of vehicles in this street
+	n_vehicles = m_inflow - m_outflow;
 
 	// Increment the available space
 	m_freeSpace = m_freeSpace + vehicle->getLength() + 3;
+	
+	// Log vehicle removal
+    logfile << "\nVehicle n. " << vehicle->getID() << " removed from "
+		    << m_name<< " (" << n_vehicles << ").";	
 }
 
 Vehicle* Street::peek() {
@@ -105,4 +119,12 @@ void Street::setEfferents(Street* eff_prob[10]) {
     for (i = 0; i < 10; i++) {
         m_effProb[i] = eff_prob[i];
     }
+}
+
+int Street::getInflow() const {
+	return m_inflow;
+}
+
+int Street::getOutflow() const {
+	return m_outflow;
 }
