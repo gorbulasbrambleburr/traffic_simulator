@@ -23,14 +23,14 @@ void RemoveVehicleEvent::makeItHappen() {
 		if (m_street->isDrain())
 		{
 			// Drain street removal
-			m_street->removeVehicle();
-
-			// This vehicle won't be used anymore
-			delete(vehicle);
+			m_street->removeVehicle();			
 
 			// Log it
 			logfile << "\nVehicle n. " << vehicle->getID()
 				    << " permanently removed from " << m_street->getName();
+
+			// This vehicle won't be used anymore
+			delete(vehicle);
 		}
 		else  // not a drain street
 		{
@@ -50,21 +50,21 @@ void RemoveVehicleEvent::makeItHappen() {
 					int free_space = dest_street->getFreeSpace();
 
 					if (vehicle->getLength() + 3 <= free_space)
-					{
+					{			
 						// Remove vehicle from this street
 						m_street->removeVehicle();
-			
+						
 						// Log it
 						logfile << "\nVehicle n. " << vehicle->getID()
 								<< " left " << m_street->getName()
 								<< " towards " << dest_street->getName();
 
 						// Compute how much time will it take for the vehicle to cross the
-						// street. Also, this is the exact time needed for the second
+						// stoplight. Also, this is the exact time needed for the second
 						// vehicle on this street to be just under the traffic lights
 
 						double speed_mps = m_street->getSpeed() / 3.6;
-						int tmp_time = sim_clock + (int) ceil((vehicle->getLength() + 3) / speed_mps);
+						int tmp_time = sim_clock + (int) ceil((vehicle->getLength() + 3) / speed_mps);						
 
 						// If this street isn't empty after the removal, then schedule
 						// a new removal event.
@@ -79,7 +79,7 @@ void RemoveVehicleEvent::makeItHappen() {
 							}
 							else
 							{
-								// Either next vehicle is at some distance from the one that left							
+								// Next vehicle is at some distance from the one that left							
 								m_events->sorted_insert(	new RemoveVehicleEvent(
 										m_street->peek()->getRemTime(), m_street, m_events));
 							}
@@ -91,6 +91,16 @@ void RemoveVehicleEvent::makeItHappen() {
 						// Also, if the destination street is a drain, a corresponding remove event
 						// will be created at the time of insertion (at AddVehicleEvent#makeItHappen).
 						m_events->sorted_insert(new AddVehicleEvent(tmp_time, dest_street, m_events, vehicle));
+					}
+					else
+					{
+						// There wasn't enough space in the destination street,
+						// so a new removal event will be fired in one second, until
+						// either the vehicle leaves the street or the stoplight turns red.
+						m_events->sorted_insert(new RemoveVehicleEvent(sim_clock + 1, m_street, m_events));
+						logfile << "\nVehicle n. " << vehicle->getID()
+							    << " tried to enter " << dest_street
+							    << " but there wasn't enough space. A new try will be made in 1s.";
 					}
 				}
 				else  // 
