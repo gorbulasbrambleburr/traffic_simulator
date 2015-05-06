@@ -39,7 +39,7 @@ void EventList::sorted_insert(Event* new_event) {
 		// While the next node is not null and its event time is less than
 		// the new event time
 		while (current->getProximo() != nullptr &&
-			   current->getProximo()->getInfo()->getTime() < new_event->getTime())
+			   current->getProximo()->getInfo()->getTime() <= new_event->getTime())
 		{
 			current = current->getProximo();
 		}

@@ -32,6 +32,8 @@ void ChangeLightsEvent::makeItHappen() {
 	}
 	else
 	{
-		logfile << "\nRed light on " << m_street;
+		logfile << "\nRed light on " << m_street->getName();
+		logfile << "\nCurrent inflow: " << m_street->getInflow();
+		logfile << "\nCurrent outflow: " << m_street->getOutflow();
 	}
 }

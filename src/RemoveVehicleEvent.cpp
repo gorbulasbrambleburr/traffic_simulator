@@ -94,13 +94,22 @@ void RemoveVehicleEvent::makeItHappen() {
 					}
 					else
 					{
+						logfile << "\nVehicle n. " << vehicle->getID()
+							    << " tried to enter " << dest_street->getName()
+							    << " but there wasn't enough space.";
+						
 						// There wasn't enough space in the destination street,
 						// so a new removal event will be fired in one second, until
 						// either the vehicle leaves the street or the stoplight turns red.
-						m_events->sorted_insert(new RemoveVehicleEvent(sim_clock + 1, m_street, m_events));
-						logfile << "\nVehicle n. " << vehicle->getID()
-							    << " tried to enter " << dest_street
-							    << " but there wasn't enough space. A new try will be made in 1s.";
+						// This is only necessary with those streets below, due to the fact that
+						// the destination street stoplight will be green at the same time,
+						// possibly making room for a new vehicle to be inserted.
+						if ((m_street->getName() == "O1LESTE" && dest_street->getName() == "C1LESTE") ||
+							(m_street->getName() == "L1OESTE" && dest_street->getName() == "C1OESTE"))
+						{
+							m_events->sorted_insert(new RemoveVehicleEvent(sim_clock + 1, m_street, m_events));
+							logfile << "A new try will be made in 1s.";
+						}
 					}
 				}
 				else  // 

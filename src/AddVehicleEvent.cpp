@@ -25,9 +25,6 @@ void AddVehicleEvent::makeItHappen() {
 			m_vehicle->setID(vehicle_id++);
 		}
 		
-		// Add the vehicle
-		m_street->addVehicle(m_vehicle);
-		
 		// The distance this vehicle has to travel		
 		int travel_distance = m_street->getLength() - m_vehicle->getLength() - 3;
 
@@ -36,12 +33,17 @@ void AddVehicleEvent::makeItHappen() {
 		const int rem_time = sim_clock +  (int) ceil(travel_distance / speed_mps);
 		m_vehicle->setRemTime(rem_time);
 		
-		// Check if it's a drain street
-		if (m_street->isDrain()) {
+		// Check if it's a drain street (1) or if the street was empty before this
+		// vehicle was added (2), then create a new removal event for when it reaches
+		// the end of the street (1) / stoplight (2).
+		if (m_street->isDrain() || m_street->isEmpty()) {
 
 			// Create an event to remove this vehicle
 			m_events->sorted_insert(new RemoveVehicleEvent(rem_time, m_street, m_events));
 		}
+
+		// Add the vehicle
+		m_street->addVehicle(m_vehicle);
 	}
 }
 
