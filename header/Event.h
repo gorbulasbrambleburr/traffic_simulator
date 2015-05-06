@@ -15,7 +15,7 @@ public:
 
 protected:
 	int m_time;           //< Time at which to fire the event.
-    Street* m_street;     //< The street which generated the event.
+    Street* m_street;     //< The street on which the event takes place.
 	EventList* m_events;  //< Pointer to the list of future events.
 };
 

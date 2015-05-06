@@ -131,56 +131,51 @@ void init_traffic_light_events(
 	// Time of event
 	int tmp_time = stoplight_period;
 
+	// Pointers to streets
+	Street *s0, *s1, *s2, *s3, *s4, *s5, *s12, *s13;
+	s0 = s[0]; s1 = s[1]; s2  = s[2];  s3  = s[3];
+	s4 = s[4]; s5 = s[5]; s12 = s[12]; s13 = s[13];
+
 	// Create the first event
-	events->first_insert(new ChangeLightsEvent(tmp_time, s[0], events), pos);
-
-
+	events->first_insert(new ChangeLightsEvent(tmp_time, s0, s12, events), pos);
 
 	// Create all the fixed events
 	while (tmp_time < max_time) {
 		
 		// O1LESTE & C1LESTE -------------------------------------------
-		// Green light		
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[12], events), pos);
 		// Update time
 		tmp_time = tmp_time + stoplight_period;
 		// Red light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[0], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[12], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s0, s12, events), pos);
 
 		
 		// N1SUL & N2SUL -----------------------------------------------
 		// Green light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[4], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[5], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s4, s5, events), pos);
 		// Update time
 		tmp_time = tmp_time + stoplight_period;
 		// Red light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[4], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[5], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s4, s5, events), pos);
 
 		// L1OESTE & C1OESTE -------------------------------------------
 		// Green light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[3], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[13], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s3, s13, events), pos);
 		// Update time
 		tmp_time = tmp_time + stoplight_period;
 		// Red light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[3], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[13], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s3, s13, events), pos);
 
 		// S1NORTE & S2NORTE -------------------------------------------
 		// Green light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[1], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[2], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s1, s2, events), pos);
 		// Update time
 		tmp_time = tmp_time + stoplight_period;		
 		// Red light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[1], events), pos);
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[2], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s1, s2, events), pos);
 
-		// O1LESTE - Green light
-		events->insert_after(new ChangeLightsEvent(tmp_time, s[0], events), pos);
+		// O1LESTE & C1LESTE -------------------------------------------
+		// Green light
+		events->insert_after(new ChangeLightsEvent(tmp_time, s0, s12, events), pos);
 	}
 	std::cout << " done.";
 }
@@ -243,7 +238,8 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 		}
 		
 		
-		// Create all the fixed events
+		// Create all other vehicles
+		// -------------------------
         while (tmp_time < max_time) {
 
             // Actual time of event

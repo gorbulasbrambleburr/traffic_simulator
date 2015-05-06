@@ -9,8 +9,12 @@ class EventList;
 
 class ChangeLightsEvent : public Event {
 public:
-	ChangeLightsEvent(const int &time, Street* street, EventList* events);
+	ChangeLightsEvent(const int &time, Street* street, Street* second_street, EventList* events);
     ~ChangeLightsEvent();
     void makeItHappen();
+	void doSomething(Street* s);
+
+private:
+	Street* m_secondStreet;  //< Pointer to the second street.
 };
 #endif // CHANGELIGHTSEVENT_H
