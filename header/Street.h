@@ -13,8 +13,8 @@
 class Street : private FilaEnc<Vehicle*>
 {
  public:
-    Street(std::string name, int period, int p_var, int speed,
-           int length, int cross_period, bool source, bool drain);
+    Street(std::string name, int period, int p_var,
+		   int speed, int length, bool drain);
 
     ~Street();
     void addVehicle(Vehicle* vehicle);
@@ -28,8 +28,6 @@ class Street : private FilaEnc<Vehicle*>
     int getSpeed();
     int getLength();
 	int getFreeSpace();
-	int getCrossingPeriod();
-    bool isSource();
     bool isDrain();
 	bool isGreenLight();
 	void switchGreenLight();
@@ -47,8 +45,6 @@ class Street : private FilaEnc<Vehicle*>
     int m_speed;             //< The constant speed in km/h
     int m_length;            //< The length in meters.
 	int m_freeSpace;         //< The available space in meters.
-	int m_crossingPeriod;    //< The period on which the traffic light is green.
-	bool m_source;           //< Is it a source of vehicles?
     bool m_drain;            //< Is it a drain for vehicles?
 	bool m_greenLight;       //< Is the traffic light green?
 	Street* m_effProb[10];   //< List of pointers to efferents based on probability.

@@ -1,12 +1,11 @@
 #include "Street.h"
 #include "global_variables.h"
 
-Street::Street(std::string name, int period, int period_var, int speed,
-               int length, int cross_period, bool source, bool drain)
+Street::Street(std::string name, int period, int period_var,
+			   int speed, int length, bool drain)
    : m_name(name), m_period(period), m_periodVar(period_var),
      m_speed(speed), m_length(length), m_freeSpace(length),
-	 m_crossingPeriod(cross_period), m_source(source), m_drain(drain),
-	 m_greenLight(false), m_inflow(0), m_outflow(0)
+	 m_drain(drain), m_greenLight(false), m_inflow(0), m_outflow(0)
 {
 }
 
@@ -88,14 +87,6 @@ int Street::getLength() {
 
 int Street::getFreeSpace() {
 	return m_freeSpace;
-}
-
-int Street::getCrossingPeriod() {
-	return m_crossingPeriod;
-}
-
-bool Street::isSource() {
-    return m_source;
 }
 
 bool Street::isDrain() {

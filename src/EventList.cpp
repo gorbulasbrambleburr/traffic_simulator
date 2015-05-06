@@ -18,7 +18,8 @@ EventList::~EventList() {
 ///
 /// \param Event* new_event - a pointer to the new event to be inserted.
 ///////////////////////////////////////////////////////////////////////////////
-void EventList::sorted_insert(Event* new_event) {	
+void EventList::sorted_insert(Event* new_event)
+{	
 	Elemento<Event*> *new_node;
 	
 	// Create a new node
@@ -50,6 +51,80 @@ void EventList::sorted_insert(Event* new_event) {
 	_size++;
 }
 
+
+
+void EventList::first_insert(Event* new_event, int& pos) {
+	Elemento<Event*> *new_node = new Elemento<Event*>(new_event, nullptr);
+	
+	// Create a new node
+	if (!(new_node = new Elemento<Event*>(new_event, nullptr))) {
+		throw ERRO_LISTA_CHEIA;
+	}
+
+	pos = 0;
+
+	// Empty list or new event should be the first in the list
+	if (_head == nullptr || _head->getInfo()->getTime() > new_event->getTime())
+	{		
+		new_node->setProximo(_head);
+		_head = new_node;		
+	}
+	else
+	{
+		Elemento<Event*>* current = _head;
+		pos = 1;
+		
+		// While the next node is not null and its event time is less than
+		// the new event time
+		while (current->getProximo() != nullptr &&
+			   current->getProximo()->getInfo()->getTime() <= new_event->getTime())
+		{
+			current = current->getProximo();
+			pos++;
+		}
+		// In any case, the new node will always be after the current node		
+		new_node->setProximo(current->getProximo());
+		current->setProximo(new_node);
+	}
+	_size++;
+}
+
+
+
+
+void EventList::insert_after(Event* new_event, int& pos) {
+	Elemento<Event*> *new_node;
+
+	// Create a new node
+	if (!(new_node = new Elemento<Event*>(new_event, nullptr))) {
+		throw ERRO_LISTA_CHEIA;
+	}
+	else
+	{
+		Elemento<Event*>* current = _head;
+		int i = 0;
+		
+		// Go to location given by pos
+		while (i < pos) {
+			current = current->getProximo();
+			i++;
+		}
+
+		// While the next node is not null and its event time is less than
+		// the new event time
+		while (current->getProximo() != nullptr &&
+			   current->getProximo()->getInfo()->getTime() <= new_event->getTime())
+		{
+			current = current->getProximo();
+			pos++;
+		}
+		// In any case, the new node will always be after the current node		
+		new_node->setProximo(current->getProximo());
+		current->setProximo(new_node);
+	}
+	_size++;
+	pos++;
+}
 
 
 

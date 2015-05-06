@@ -2,6 +2,7 @@
 #include <string.h>
 #include <cstdlib>
 #include <stdlib.h>  // System("pause")
+#include <ctime>
 
 #include "global_variables.h"
 #include "ListaEnc.hpp"
@@ -18,7 +19,6 @@
 #define MIN_ROUTE 0
 #define MAX_ROUTE 9
 #define N_STREETS 14
-
 
 // Gloabal variables
 std::ofstream logfile;     //< Output file to log results.
@@ -120,56 +120,67 @@ void generate_report(Street* s[N_STREETS])
 /// \sa
 ///////////////////////////////////////////////////////////////////////////////
 void init_traffic_light_events(
-	Street* s[N_STREETS], const int &max_time, EventList* events)
+	Street* s[N_STREETS],       // List of street pointers
+	const int &max_time,        // Maximum simulation time
+	EventList* events,          // Pointer to list of future events
+	int& stoplight_period)      // Stoplight period (equal in all streets)
 {
 	std::cout << "\nCreating traffic light events...";
+	int pos;
 	
 	// Time of event
-	int tmp_time = s[0]->getCrossingPeriod();
+	int tmp_time = stoplight_period;
+
+	// Create the first event
+	events->first_insert(new ChangeLightsEvent(tmp_time, s[0], events), pos);
+
+
 
 	// Create all the fixed events
 	while (tmp_time < max_time) {
 		
 		// O1LESTE & C1LESTE -------------------------------------------
-		// Green light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[0], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[12], events));
+		// Green light		
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[12], events), pos);
 		// Update time
-		tmp_time = tmp_time + s[0]->getCrossingPeriod();
+		tmp_time = tmp_time + stoplight_period;
 		// Red light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[0], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[12], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[0], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[12], events), pos);
 
 		
 		// N1SUL & N2SUL -----------------------------------------------
 		// Green light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[4], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[5], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[4], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[5], events), pos);
 		// Update time
-		tmp_time = tmp_time + s[4]->getCrossingPeriod();
+		tmp_time = tmp_time + stoplight_period;
 		// Red light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[4], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[5], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[4], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[5], events), pos);
 
 		// L1OESTE & C1OESTE -------------------------------------------
 		// Green light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[3], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[13], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[3], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[13], events), pos);
 		// Update time
-		tmp_time = tmp_time + s[3]->getCrossingPeriod();
+		tmp_time = tmp_time + stoplight_period;
 		// Red light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[3], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[13], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[3], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[13], events), pos);
 
 		// S1NORTE & S2NORTE -------------------------------------------
 		// Green light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[1], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[2], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[1], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[2], events), pos);
 		// Update time
-		tmp_time = tmp_time + s[1]->getCrossingPeriod();		
+		tmp_time = tmp_time + stoplight_period;		
 		// Red light
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[1], events));
-		events->sorted_insert(new ChangeLightsEvent(tmp_time, s[2], events));
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[1], events), pos);
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[2], events), pos);
+
+		// O1LESTE - Green light
+		events->insert_after(new ChangeLightsEvent(tmp_time, s[0], events), pos);
 	}
 	std::cout << " done.";
 }
@@ -200,14 +211,39 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
     // Iterate through all the source streets
     for (i = 0; i < 6; i++) {
 
-        tmp_time = 0;
+        int pos;
+		tmp_time = 0;
         tmp_street = s[i];
 
         // Lower and upper bounds of random number.
         l_bound = tmp_street->getPeriod() - tmp_street->getPeriodVar();
         u_bound = tmp_street->getPeriod() + tmp_street->getPeriodVar();
 
-        // Create all the fixed events
+        
+		// Insert first vehicle event
+		// --------------------------
+
+		// Actual time of event
+        tmp_time = tmp_time + function_rand(l_bound, u_bound);            
+
+		// Create a new random vehicle
+		tmp_vehicle = new Vehicle(
+			function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),  // length
+			function_rand(MIN_ROUTE,MAX_ROUTE),  // route
+			-1);                 // vehicle id
+
+		if (tmp_vehicle) {
+
+			// Add event to the future event list
+			events->first_insert(new AddVehicleEvent(tmp_time, tmp_street, events, tmp_vehicle), pos);
+
+			// Log it.
+			logfile << "\nAddVehicleEvent: " << tmp_street->getName()
+					<< " at " << tmp_time;
+		}
+		
+		
+		// Create all the fixed events
         while (tmp_time < max_time) {
 
             // Actual time of event
@@ -222,7 +258,7 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 			if (tmp_vehicle) {
 
 				// Add event to the future event list
-				events->sorted_insert(new AddVehicleEvent(tmp_time, tmp_street, events, tmp_vehicle));
+				events->insert_after(new AddVehicleEvent(tmp_time, tmp_street, events, tmp_vehicle), pos);
 
 				// Log it.
 				logfile << "\nAddVehicleEvent: " << tmp_street->getName()
@@ -353,29 +389,29 @@ void link_streets(Street* s[N_STREETS]) {
 /// \return
 /// \sa link_streets
 ///////////////////////////////////////////////////////////////////////////////
-void create_streets(Street* s[N_STREETS], int &stoplight_period) {
+void create_streets(Street* s[N_STREETS]) {
 
 	std::cout << "\nCreating streets...";
 
     // Sources
-    s[0] = new Street("O1LESTE", 10,  2, 80, 2000, stoplight_period, true, false);
-    s[1] = new Street("S1NORTE", 30,  7, 60,  500, stoplight_period, true, false);
-    s[2] = new Street("S2NORTE", 60, 15, 40,  500, stoplight_period, true, false);
-    s[3] = new Street("L1OESTE", 10,  2, 30,  400, stoplight_period, true, false);
-    s[4] = new Street(  "N2SUL", 20,  5, 40,  500, stoplight_period, true, false);
-    s[5] = new Street(  "N1SUL", 20,  5, 60,  500, stoplight_period, true, false);
-
-    // Drains
-    s[6]  = new Street("O1OESTE", 0, 0, 80, 2000, stoplight_period, false, true);
-	s[7]  = new Street(  "S1SUL", 0, 0, 60,  500, stoplight_period, false, true);
-    s[8]  = new Street(  "S2SUL", 0, 0, 40,  500, stoplight_period, false, true);
-    s[9]  = new Street("L1LESTE", 0, 0, 30,  400, stoplight_period, false, true);
-    s[10] = new Street("N2NORTE", 0, 0, 40,  500, stoplight_period, false, true);
-    s[11] = new Street("N1NORTE", 0, 0, 60,  500, stoplight_period, false, true);    
-
-    // Neuters
-    s[12] = new Street("C1LESTE", 0, 0, 60,  300, stoplight_period, false, false);
-    s[13] = new Street("C1OESTE", 0, 0, 60,  300, stoplight_period, false, false);
+    s[0] = new Street("O1LESTE", 10,  2, 80, 2000, false);
+    s[1] = new Street("S1NORTE", 30,  7, 60,  500, false);
+    s[2] = new Street("S2NORTE", 60, 15, 40,  500, false);
+    s[3] = new Street("L1OESTE", 10,  2, 30,  400, false);
+    s[4] = new Street(  "N2SUL", 20,  5, 40,  500, false);
+    s[5] = new Street(  "N1SUL", 20,  5, 60,  500, false);
+                                                   
+    // Drains                                      
+    s[6]  = new Street("O1OESTE", 0, 0, 80, 2000, true);
+	s[7]  = new Street(  "S1SUL", 0, 0, 60,  500, true);
+    s[8]  = new Street(  "S2SUL", 0, 0, 40,  500, true);
+    s[9]  = new Street("L1LESTE", 0, 0, 30,  400, true);
+    s[10] = new Street("N2NORTE", 0, 0, 40,  500, true);
+    s[11] = new Street("N1NORTE", 0, 0, 60,  500, true);    
+                                                  
+    // Neuters                                    
+    s[12] = new Street("C1LESTE", 0, 0, 60,  300, false);
+    s[13] = new Street("C1OESTE", 0, 0, 60,  300, false);
 
     std::cout << " done.";
 }
@@ -410,7 +446,9 @@ void get_simulation_parameters(int& max_time, int& stoplight_period)
 // ==============================================================================
 int main()
 {
-    
+    // Set up a clock to measure the real simulation time
+	clock_t begin = std::clock();
+	
 	// Simulation parameters
 	int max_time;                //< Maximum simulation time in seconds.
 	int stoplight_period;        //< Amount of time the stoplight is green.
@@ -422,8 +460,7 @@ int main()
     Street* streets[N_STREETS];  //< Array of Street pointers (constant size).
 
 	// Statistical variables
-	int n_events;                //< Number of events.
-	 
+	int n_events;                //< Number of events.	
 	
 	// Initialize seed
     srand((unsigned)time(NULL));
@@ -447,7 +484,7 @@ int main()
     open_logfile();
 
     // Read the input file and create the streets accordingly
-    create_streets(streets, stoplight_period);
+    create_streets(streets);
 
     // Set all the relations among the streets. This includes all efferent
 	// streets of a given street, i.e., a probability vector to determine
@@ -456,7 +493,7 @@ int main()
 
     // Create some initial events
     init_vehicle_events(streets, max_time, events);
-	init_traffic_light_events(streets, max_time, events);
+	init_traffic_light_events(streets, max_time, events, stoplight_period);
 
 	
 
@@ -510,6 +547,12 @@ int main()
 
 	
 	std::cout << "\n\nCheck output file ('"<< OUTPUT_FILENAME <<"') for logging information.\n";
+
+	// Stop the clock
+	clock_t end = std::clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "\n\nTotal running time: " << elapsed_secs << "\n\n";
+
 	system("pause");
     return 0;
 }
