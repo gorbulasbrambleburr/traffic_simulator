@@ -2,7 +2,7 @@
 #include "global_variables.h"
 #include "EventList.h"
 #include "RemoveVehicleEvent.h"
-#include "AddVehicleEvent.h"
+#include "SwitchStreetEvent.h"
 #include "Street.h"
 
 RemoveVehicleEvent::RemoveVehicleEvent(const int &time, Street *street, EventList* events)
@@ -90,7 +90,7 @@ void RemoveVehicleEvent::makeItHappen() {
 						// to cross the intersection. Teleportation ftw, folks!
 						// Also, if the destination street is a drain, a corresponding remove event
 						// will be created at the time of insertion (at AddVehicleEvent#makeItHappen).
-						m_events->sorted_insert(new AddVehicleEvent(tmp_time, dest_street, m_events, vehicle));
+						m_events->sorted_insert(new SwitchStreetEvent(tmp_time, dest_street, m_events, vehicle));
 					}
 					else
 					{

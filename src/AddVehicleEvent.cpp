@@ -1,13 +1,18 @@
 #include "global_variables.h"
+#include "function_rand.h"
 #include "EventList.h"
 #include "AddVehicleEvent.h"
 #include "RemoveVehicleEvent.h"
 #include "Vehicle.h"
 #include "Street.h"
 
+#define MIN_VEHICLE_LENGTH 2
+#define MAX_VEHICLE_LENGTH 10
+#define MIN_ROUTE 0
+#define MAX_ROUTE 9
 
-AddVehicleEvent::AddVehicleEvent(const int &time, Street *street, EventList* events, Vehicle* vehicle)
-    : Event(time, street, events), m_vehicle(vehicle) {
+AddVehicleEvent::AddVehicleEvent(const int &time, Street *street, EventList* events)
+    : Event(time, street, events) {
 }
 
 AddVehicleEvent::~AddVehicleEvent() {
@@ -17,33 +22,33 @@ void AddVehicleEvent::makeItHappen() {
 
     static int vehicle_id = 1;
 	
+	int vehicle_length = function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH);
+	
 	// Check for available space
-	if (m_vehicle->getLength() + 3 <= m_street->getFreeSpace()) {
-
-		// Give it an ID if it doesn't already have one
-		if (m_vehicle->getID() == -1) {
-			m_vehicle->setID(vehicle_id++);
-		}
+	if (vehicle_length + 3 <= m_street->getFreeSpace())
+	{
+		// Give it a random route to follow
+		int vehicle_route = function_rand(MIN_ROUTE,MAX_ROUTE);
 		
-		// The distance this vehicle has to travel		
-		int travel_distance = m_street->getLength() - m_vehicle->getLength() - 3;
+		// Create it
+		Vehicle* vehicle = new Vehicle(vehicle_length, vehicle_route, vehicle_id);
 
-		// Expected removal time for this vehicle
-		double speed_mps = m_street->getSpeed() / 3.6;
-		const int rem_time = sim_clock +  (int) ceil(travel_distance / speed_mps);
-		m_vehicle->setRemTime(rem_time);
-		
-		// Check if it's a drain street (1) or if the street was empty before this
-		// vehicle was added (2), then create a new removal event for when it reaches
-		// the end of the street (1) / stoplight (2).
-		if (m_street->isDrain() || m_street->isEmpty()) {
+		if (vehicle)
+		{
+			// The distance this vehicle has to travel		
+			int travel_distance = m_street->getLength() - vehicle->getLength() - 3;
 
-			// Create an event to remove this vehicle
-			m_events->sorted_insert(new RemoveVehicleEvent(rem_time, m_street, m_events));
-		}
+			// Expected removal time for this vehicle
+			double speed_mps = m_street->getSpeed() / 3.6;
+			const int rem_time = sim_clock +  (int) ceil(travel_distance / speed_mps);
+			vehicle->setRemTime(rem_time);
 
-		// Add the vehicle
-		m_street->addVehicle(m_vehicle);
+			// Add the vehicle to this street
+			m_street->addVehicle(vehicle);
+		}		
 	}
+
+	// Update the next vehicle id
+	vehicle_id++;
 }
 

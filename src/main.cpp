@@ -14,10 +14,6 @@
 #include "function_rand.h"
 
 #define OUTPUT_FILENAME "./results.log"
-#define MIN_VEHICLE_LENGTH 2
-#define MAX_VEHICLE_LENGTH 10
-#define MIN_ROUTE 0
-#define MAX_ROUTE 9
 #define N_STREETS 14
 
 // Gloabal variables
@@ -221,21 +217,12 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 		// Actual time of event
         tmp_time = tmp_time + function_rand(l_bound, u_bound);            
 
-		// Create a new random vehicle
-		tmp_vehicle = new Vehicle(
-			function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),  // length
-			function_rand(MIN_ROUTE,MAX_ROUTE),  // route
-			-1);                 // vehicle id
+		// Add event to the future event list
+		events->first_insert(new AddVehicleEvent(tmp_time, tmp_street, events), pos);
 
-		if (tmp_vehicle) {
-
-			// Add event to the future event list
-			events->first_insert(new AddVehicleEvent(tmp_time, tmp_street, events, tmp_vehicle), pos);
-
-			// Log it.
-			logfile << "\nAddVehicleEvent: " << tmp_street->getName()
-					<< " at " << tmp_time;
-		}
+		// Log it.
+		logfile << "\nAddVehicleEvent: " << tmp_street->getName()
+				<< " at " << tmp_time;
 		
 		
 		// Create all other vehicles
@@ -243,23 +230,14 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
         while (tmp_time < max_time) {
 
             // Actual time of event
-            tmp_time = tmp_time + function_rand(l_bound, u_bound);            
+            tmp_time = tmp_time + function_rand(l_bound, u_bound);
 
-			// Create a new random vehicle
-			tmp_vehicle = new Vehicle(
-				function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),  // length
-				function_rand(MIN_ROUTE,MAX_ROUTE),  // route
-				-1);                 // vehicle id
+			// Add event to the future event list
+			events->insert_after(new AddVehicleEvent(tmp_time, tmp_street, events), pos);
 
-			if (tmp_vehicle) {
-
-				// Add event to the future event list
-				events->insert_after(new AddVehicleEvent(tmp_time, tmp_street, events, tmp_vehicle), pos);
-
-				// Log it.
-				logfile << "\nAddVehicleEvent: " << tmp_street->getName()
-						<< " at " << tmp_time;
-			}
+			// Log it.
+			logfile << "\nAddVehicleEvent: " << tmp_street->getName()
+					<< " at " << tmp_time;
         }
     }
 	std::cout << " done.";
