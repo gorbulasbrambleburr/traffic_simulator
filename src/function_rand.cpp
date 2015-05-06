@@ -8,12 +8,9 @@
 #include "function_rand.h"
 
 int function_rand(const int &l_bound, const int &u_bound) {
-
-    // Initialize seed
-    //srand(time(NULL));
-
+	
     // Generate number
-	int r;
+	unsigned int r;
     const unsigned int range = 1 + u_bound - l_bound;
     const unsigned int buckets = RAND_MAX / range;
     const unsigned int limit = buckets * range;

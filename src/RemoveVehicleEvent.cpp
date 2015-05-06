@@ -34,7 +34,6 @@ void RemoveVehicleEvent::makeItHappen() {
 		}
 		else  // not a drain street
 		{
-
 			// Test for greenlight. Only useful for vehicles other than the first.
 			if (m_street->isGreenLight())
 			{				
@@ -45,6 +44,7 @@ void RemoveVehicleEvent::makeItHappen() {
 					// Get destination street
 					int route = vehicle->getRoute();
 					Street* dest_street = m_street->getDestinationStreet(route);
+					
 
 					// Get available space in the destination street
 					int free_space = dest_street->getFreeSpace();

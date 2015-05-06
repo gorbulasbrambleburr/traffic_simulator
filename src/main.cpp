@@ -12,10 +12,11 @@
 #include "Street.h"
 #include "function_rand.h"
 
-
 #define OUTPUT_FILENAME "./results.log"
 #define MIN_VEHICLE_LENGTH 2
 #define MAX_VEHICLE_LENGTH 10
+#define MIN_ROUTE 0
+#define MAX_ROUTE 9
 #define N_STREETS 14
 
 
@@ -26,11 +27,11 @@ int sim_clock;             //< Current simulation time in seconds.
 
 
 ///////////////////////////////////////////////////////////////////////////////
-///
+/// Opens the output file OUTPUT_FILENAME.
 ///
 /// \param
 /// \return
-/// \sa
+/// \sa close_logfile
 ///////////////////////////////////////////////////////////////////////////////
 void open_logfile() {
     logfile.open(OUTPUT_FILENAME);
@@ -41,11 +42,11 @@ void open_logfile() {
 
 
 ///////////////////////////////////////////////////////////////////////////////
-///
+/// Closes the output file.
 ///
 /// \param
 /// \return
-/// \sa
+/// \sa open_logfile
 ///////////////////////////////////////////////////////////////////////////////
 void close_logfile() {
     if (logfile.is_open()) {
@@ -53,6 +54,14 @@ void close_logfile() {
     }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+/// Write the statistical report to the output file and the console.
+///
+/// \param Street* s[N_STREETS] - array of street pointers.
+/// \return
+/// \sa
+///////////////////////////////////////////////////////////////////////////////
 void generate_report(Street* s[N_STREETS])
 {
 	int i;	
@@ -100,10 +109,13 @@ void generate_report(Street* s[N_STREETS])
 	logfile << "\nNumber of vehicles trapped in the system..: " << sum_inflow - sum_outflow;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
+/// Creates all the lights changing events to be used in the simulation.
 ///
-///
-/// \param
+/// \param Street* s[N_STREETS] - array of street pointers.
+/// \param const int &max_time  - reference to the total simulation time.
+/// \param EventList* events    - pointer to list of future events.
 /// \return
 /// \sa
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,9 +176,13 @@ void init_traffic_light_events(
 
 
 ///////////////////////////////////////////////////////////////////////////////
+/// Creates all the initial vehicles insertion events. There will be more
+/// vehicles insertion events happening during the simulation every time a
+/// vehicle leaves a street towards another.
 ///
-///
-/// \param
+/// \param Street* s[N_STREETS] - array of street pointers.
+/// \param const int &max_time  - reference to the total simulation time.
+/// \param EventList* events    - pointer to list of future events.
 /// \return
 /// \sa
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,7 +216,7 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 			// Create a new random vehicle
 			tmp_vehicle = new Vehicle(
 				function_rand(MIN_VEHICLE_LENGTH, MAX_VEHICLE_LENGTH),  // length
-				function_rand(0,9),  // route
+				function_rand(MIN_ROUTE,MAX_ROUTE),  // route
 				-1);                 // vehicle id
 
 			if (tmp_vehicle) {
@@ -220,11 +236,11 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 
 
 ///////////////////////////////////////////////////////////////////////////////
+/// Links source/intermediary streets to intermediary/drain ones.
 ///
-///
-/// \param
+/// \param Street* s[N_STREETS] - array of street pointers.
 /// \return
-/// \sa
+/// \sa create_streets
 ///////////////////////////////////////////////////////////////////////////////
 void link_streets(Street* s[N_STREETS]) {
 
@@ -329,11 +345,13 @@ void link_streets(Street* s[N_STREETS]) {
 
 
 ///////////////////////////////////////////////////////////////////////////////
+/// Create all the streets used in the simulation.
 ///
-///
-/// \param
+/// \param Street* s[N_STREETS]  - array of street pointers.
+/// \param int &stoplight_period - the period at which the stoplights will be
+///        turned on.
 /// \return
-/// \sa
+/// \sa link_streets
 ///////////////////////////////////////////////////////////////////////////////
 void create_streets(Street* s[N_STREETS], int &stoplight_period) {
 
@@ -365,9 +383,11 @@ void create_streets(Street* s[N_STREETS], int &stoplight_period) {
 
 
 ///////////////////////////////////////////////////////////////////////////////
+/// Gets the total simulation time and the stoplight period from the console.
 ///
-///
-/// \param
+/// \param const int &max_time   - reference to the total simulation time.
+/// \param int &stoplight_period - the period at which the stoplights will be
+///        turned on.
 /// \return
 /// \sa
 ///////////////////////////////////////////////////////////////////////////////
@@ -403,12 +423,10 @@ int main()
 
 	// Statistical variables
 	int n_events;                //< Number of events.
-	int n_inVehicles;            //< Number of vehicles that entered the system.
-	int n_outVehicles;           //< Numeber of vehicles that left the system.
-
-    
+	 
 	
-
+	// Initialize seed
+    srand((unsigned)time(NULL));
 
 
 
