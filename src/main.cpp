@@ -13,7 +13,6 @@
 #include "Street.h"
 #include "function_rand.h"
 
-#define OUTPUT_FILENAME "./results.log"
 #define N_STREETS 14
 
 // Gloabal variables
@@ -446,8 +445,6 @@ int main()
 	// Deallocate the list of events
 	delete events;
 	
-	std::cout << "\n\nCheck output file ('"<< OUTPUT_FILENAME <<"') for logging information.\n";
-
 	// Stop the clock
 	clock_t end = std::clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
