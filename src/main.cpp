@@ -49,9 +49,11 @@ void generate_report(Street* s[N_STREETS])
 				  << s[i]->getInflow() -
 				     s[i]->getOutflow()
 				  << "\n";
-		sum_inflow = sum_inflow + s[i]->getInflow();
-		sum_outflow = sum_outflow + s[i]->getOutflow();
 	}
+
+	for (i = 0; i < 6; i++) sum_inflow = sum_inflow + s[i]->getInflow();
+	for (i = 6; i < 12; i++) sum_outflow = sum_outflow + s[i]->getOutflow();
+
 	std::cout << "\n\n";
 	std::cout << "\nNumber of vehicles that entered the system: " << sum_inflow;
 	std::cout << "\nNumber of vehicles that left the system...: " << sum_outflow;
@@ -418,9 +420,6 @@ int main()
 	std::cout << "\n\nRunning simulation...";
 	
 	while (!events->is_empty() && sim_clock < max_time) {
-
-		// Update number of events
-        n_events++;
 		
 		// Get next event in time
         cur_event = events->pop_front();
