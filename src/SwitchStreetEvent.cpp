@@ -20,7 +20,7 @@ void SwitchStreetEvent::makeItHappen() {
 	// Check for available space
 	if (m_vehicle->getLength() + 3 <= m_street->getFreeSpace()) {
 
-		// The distance this vehicle has to travel		
+		// The distance this vehicle has to travel
 		int travel_distance = m_street->getLength() - m_vehicle->getLength() - 3;
 
 		// Expected removal time for this vehicle

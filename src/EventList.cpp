@@ -1,6 +1,5 @@
 #include "EventList.h"
 #include "Event.h"
-#include "global_variables.h"
 
 
 EventList::EventList() : ListaEnc<Event*>() {

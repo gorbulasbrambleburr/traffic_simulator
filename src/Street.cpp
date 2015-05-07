@@ -26,10 +26,6 @@ void Street::addVehicle(Vehicle* vehicle) {
 	
 	// Decrement the available space
 	m_freeSpace = m_freeSpace - vehicle->getLength() - 3;
-
-	// Log vehicle insertion
-	logfile << "\nVehicle n. " << vehicle->getID() << " (" << vehicle->getLength()
-		    << "m) added to " << m_name << " (" << n_vehicles << ").";
 }
 
 
@@ -48,10 +44,6 @@ void Street::removeVehicle() {
 
 	// Increment the available space
 	m_freeSpace = m_freeSpace + vehicle->getLength() + 3;
-	
-	// Log vehicle removal
-    logfile << "\nVehicle n. " << vehicle->getID() << " removed from "
-		    << m_name<< " (" << n_vehicles << ").";	
 }
 
 Vehicle* Street::peek() {

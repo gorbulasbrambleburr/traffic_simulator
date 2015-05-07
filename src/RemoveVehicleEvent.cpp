@@ -25,10 +25,6 @@ void RemoveVehicleEvent::makeItHappen() {
 			// Drain street removal
 			m_street->removeVehicle();			
 
-			// Log it
-			logfile << "\nVehicle n. " << vehicle->getID()
-				    << " permanently removed from " << m_street->getName();
-
 			// This vehicle won't be used anymore
 			delete(vehicle);
 		}
@@ -53,11 +49,6 @@ void RemoveVehicleEvent::makeItHappen() {
 					{			
 						// Remove vehicle from this street
 						m_street->removeVehicle();
-						
-						// Log it
-						logfile << "\nVehicle n. " << vehicle->getID()
-								<< " left " << m_street->getName()
-								<< " towards " << dest_street->getName();
 
 						// Compute how much time will it take for the vehicle to cross the
 						// stoplight. Also, this is the exact time needed for the second
@@ -94,10 +85,6 @@ void RemoveVehicleEvent::makeItHappen() {
 					}
 					else
 					{
-						logfile << "\nVehicle n. " << vehicle->getID()
-							    << " tried to enter " << dest_street->getName()
-							    << " but there wasn't enough space.";
-						
 						// There wasn't enough space in the destination street,
 						// so a new removal event will be fired in one second, until
 						// either the vehicle leaves the street or the stoplight turns red.
@@ -108,7 +95,6 @@ void RemoveVehicleEvent::makeItHappen() {
 							(m_street->getName() == "L1OESTE" && dest_street->getName() == "C1OESTE"))
 						{
 							m_events->sorted_insert(new RemoveVehicleEvent(sim_clock + 1, m_street, m_events));
-							logfile << "A new try will be made in 1s.";
 						}
 					}
 				}
@@ -116,21 +102,8 @@ void RemoveVehicleEvent::makeItHappen() {
 				{					
 					m_events->sorted_insert(	new RemoveVehicleEvent(
 							m_street->peek()->getRemTime(), m_street, m_events));
-					logfile << "\nFirst vehicle wasn't yet under the stoplight at "
-						    << m_street->getName() << " and couldn't be removed.";
 				}
-			}
-			else  // not Greenlight
-			{
-				logfile << "\nStoplight at " << m_street->getName()
-			            << " is red. No vehicles were removed.";
 			}
 		}
 	}
-	else  // empty street
-	{
-		logfile << "\n" << m_street->getName()
-			    << " is empty. No vehicles were removed.";
-	}
-
 }

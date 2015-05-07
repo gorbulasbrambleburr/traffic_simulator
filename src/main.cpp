@@ -17,38 +17,8 @@
 #define N_STREETS 14
 
 // Gloabal variables
-std::ofstream logfile;     //< Output file to log results.
 int sim_clock;             //< Current simulation time in seconds.
 
-
-
-///////////////////////////////////////////////////////////////////////////////
-/// Opens the output file OUTPUT_FILENAME.
-///
-/// \param
-/// \return
-/// \sa close_logfile
-///////////////////////////////////////////////////////////////////////////////
-void open_logfile() {
-    logfile.open(OUTPUT_FILENAME);
-    if (!logfile.is_open()) {
-        std::cout << "Could not open file " << OUTPUT_FILENAME;
-    }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-/// Closes the output file.
-///
-/// \param
-/// \return
-/// \sa open_logfile
-///////////////////////////////////////////////////////////////////////////////
-void close_logfile() {
-    if (logfile.is_open()) {
-        logfile.close();
-    }
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,18 +35,12 @@ void generate_report(Street* s[N_STREETS])
 	int sum_outflow = 0;
 	
 	std::cout << "\n\n";
-	logfile << "\n\n";
-	//std::cout << "Street   Inflow    Outflow    Current\n";
 	std::cout << "Street" << "\t\t"
 	          << "In" << "\t"
 	          << "Out" << "\t"
 	          << "Trapped";
 	std::cout << "\n--------------------------------------\n";
-	logfile << "Street" << "\t\t"
-	        << "In" << "\t"
-	        << "Out" << "\t"
-	        << "Trapped";
-	logfile << "\n--------------------------------------\n";
+
 	for (i = 0; i < N_STREETS; i++)
 	{
 		std::cout << s[i]->getName() << "\t\t"
@@ -85,13 +49,6 @@ void generate_report(Street* s[N_STREETS])
 				  << s[i]->getInflow() -
 				     s[i]->getOutflow()
 				  << "\n";
-		logfile << s[i]->getName() << "\t\t"
-			    << s[i]->getInflow() << "\t"
-				<< s[i]->getOutflow() << "\t"
-				<< s[i]->getInflow() -
-				   s[i]->getOutflow()
-				<< "\n";
-
 		sum_inflow = sum_inflow + s[i]->getInflow();
 		sum_outflow = sum_outflow + s[i]->getOutflow();
 	}
@@ -99,10 +56,6 @@ void generate_report(Street* s[N_STREETS])
 	std::cout << "\nNumber of vehicles that entered the system: " << sum_inflow;
 	std::cout << "\nNumber of vehicles that left the system...: " << sum_outflow;
 	std::cout << "\nNumber of vehicles trapped in the system..: " << sum_inflow - sum_outflow;
-	logfile << "\n\n";
-	logfile << "\nNumber of vehicles that entered the system: " << sum_inflow;
-	logfile << "\nNumber of vehicles that left the system...: " << sum_outflow;
-	logfile << "\nNumber of vehicles trapped in the system..: " << sum_inflow - sum_outflow;
 }
 
 
@@ -195,7 +148,6 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
     int l_bound;   // Lower bound
 	int u_bound;   // Upper bound
     Street* tmp_street;
-	Vehicle* tmp_vehicle;
 
 	std::cout << "\nGenerating initial vehicle events...";
 
@@ -215,16 +167,11 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 		// --------------------------
 
 		// Actual time of event
-        tmp_time = tmp_time + function_rand(l_bound, u_bound);            
+        tmp_time = tmp_time + function_rand(l_bound, u_bound);
 
 		// Add event to the future event list
 		events->first_insert(new AddVehicleEvent(tmp_time, tmp_street, events), pos);
 
-		// Log it.
-		logfile << "\nAddVehicleEvent: " << tmp_street->getName()
-				<< " at " << tmp_time;
-		
-		
 		// Create all other vehicles
 		// -------------------------
         while (tmp_time < max_time) {
@@ -234,10 +181,6 @@ void init_vehicle_events(Street* s[N_STREETS], const int &max_time, EventList* e
 
 			// Add event to the future event list
 			events->insert_after(new AddVehicleEvent(tmp_time, tmp_street, events), pos);
-
-			// Log it.
-			logfile << "\nAddVehicleEvent: " << tmp_street->getName()
-					<< " at " << tmp_time;
         }
     }
 	std::cout << " done.";
@@ -420,10 +363,7 @@ void get_simulation_parameters(int& max_time, int& stoplight_period)
 // ==============================================================================
 int main()
 {
-    // Set up a clock to measure the real simulation time
-	clock_t begin = std::clock();
-	
-	// Simulation parameters
+    // Simulation parameters
 	int max_time;                //< Maximum simulation time in seconds.
 	int stoplight_period;        //< Amount of time the stoplight is green.
 
@@ -451,11 +391,11 @@ int main()
 	// Get simulation time and stoplight period from the console
 	get_simulation_parameters(max_time, stoplight_period);
 	
+	// Set up a clock to measure the real simulation time
+	clock_t begin = std::clock();
+	
 	// Create the Future Event List
     events = new EventList();
-
-    // Open output file
-    open_logfile();
 
     // Read the input file and create the streets accordingly
     create_streets(streets);
@@ -475,7 +415,6 @@ int main()
     // BEGIN SIMULATOR
     // --------------------------------------------------------------------------
     
-	logfile << "\n\nStarting simulation...\n";
 	std::cout << "\n\nRunning simulation...";
 	
 	while (!events->is_empty() && sim_clock < max_time) {
@@ -489,15 +428,7 @@ int main()
         // Update the simulation clock
         sim_clock = cur_event->getTime();
 		
-		logfile << "\n\n-------------------------------------------------";
-		logfile << "\nEvent " << n_events << " of " << events->getSize();
-		logfile << "\nEvent time: " << sim_clock;
-		//logfile << "\nList size...: " << events->getSize();		
-		//std::cout << "\nEvent number: " << n_events;
-		//std::cout << "\nEvent time..: " << sim_clock;
-		//std::cout << "\nList size: " << events->getSize();
-
-        // Each event will do what it's supposed to do by polymorphism.
+	    // Each event will do what it's supposed to do by polymorphism.
         cur_event->makeItHappen();
 
 		// Deallocate event
@@ -515,10 +446,6 @@ int main()
 
 	// Deallocate the list of events
 	delete events;
-	
-	// Close the output file
-    close_logfile();
-
 	
 	std::cout << "\n\nCheck output file ('"<< OUTPUT_FILENAME <<"') for logging information.\n";
 

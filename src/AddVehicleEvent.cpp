@@ -51,4 +51,3 @@ void AddVehicleEvent::makeItHappen() {
 	// Update the next vehicle id
 	vehicle_id++;
 }
-
