@@ -444,6 +444,13 @@ int main()
 
 	// Deallocate the list of events
 	delete events;
+
+	// Deallocate the vehicles that got trapped in the system
+	int i;
+	for (i = 0; i < N_STREETS; i++)
+	{
+		delete streets[i];
+	}
 	
 	// Stop the clock
 	clock_t end = std::clock();
