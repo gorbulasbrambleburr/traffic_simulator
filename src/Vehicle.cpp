@@ -13,6 +13,10 @@ int Vehicle::getRoute() {
 	return m_route;
 }
 
+void Vehicle::setRoute(const int route) {
+	m_route = route;
+}
+
 int Vehicle::getRemTime() {
 	return m_remTime;
 }

@@ -8,6 +8,7 @@ class Vehicle
     ~Vehicle();
     int getLength();
 	int getRoute();
+	void setRoute(const int route);
 	int getRemTime();
 	void setRemTime(const int &rem_time);
 	int getID() const;
